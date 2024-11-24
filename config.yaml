@@ -263,7 +263,7 @@ layers:
         type: triple
         actions:
           - type: press
-            key: "shift+,"
+            key: "shift+comma"
       - code: xoxxo
         type: double
         actions:

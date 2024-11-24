@@ -2,7 +2,7 @@ from enum import Enum
 import yaml
 from typing import List, Dict, Any
 from abc import ABC, abstractmethod
-from pynput.keyboard import Key
+from pynput.keyboard import Key, KeyCode
 
 
 class ConfigActionType(Enum):
@@ -35,8 +35,8 @@ class ConfigAction:
         return f"""      ConfigAction(type={self.type}, key={self.key})"""
 
 
-def _parse_key(key: str) -> str:
-    match (key):
+def _parse_key(key: str) -> Key | KeyCode:
+    match key:
         case "space" | " ":
             return Key.space
         case "enter" | "return":
@@ -75,8 +75,22 @@ def _parse_key(key: str) -> str:
             return Key.alt
         case "shift":
             return Key.shift
+        case "plus":
+            return KeyCode.from_char("+")
+        case "comma":
+            return KeyCode.from_char(",")
+        case "period":
+            return KeyCode.from_char(".")
+        case "semicolon":
+            return KeyCode.from_char(";")
+        case "apostrophe":
+            return KeyCode.from_char("'")
+        case "backslash":
+            return KeyCode.from_char("\\")
+        case "slash":
+            return KeyCode.from_char("/")
         case _:
-            return key
+            return KeyCode.from_char(key)
 
 
 class ConfigMapEntryType(Enum):
