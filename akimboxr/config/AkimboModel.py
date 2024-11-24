@@ -13,6 +13,11 @@ import asyncio
 from .AkimboTapHandler import AkimboTapHandler
 
 
+# Converts a 5-bit integer to a unicode representation of a key
+def key_to_unicode(key: int) -> str:
+    return "".join(["●" if (key >> i) & 1 else "○" for i in range(5)])
+
+
 class AkimboLayer:
     def __init__(
             self,
@@ -21,17 +26,17 @@ class AkimboLayer:
             transparent: bool = False,
     ):
         self.name = name
-        self.__actionMap = actions
+        self.actionMap = actions
         self.__transparent = transparent
 
     def process(self, tapcode: int, down_layer: Callable[[], None]):
         print(f"Process {self.name}")
-        if tapcode in self.__actionMap:
+        if tapcode in self.actionMap:
             print(f"Running {tapcode}")
             if self.__transparent:
-                self.__actionMap[tapcode](down_layer)
+                self.actionMap[tapcode](down_layer)
             else:
-                self.__actionMap[tapcode](lambda: None)
+                self.actionMap[tapcode](lambda: None)
 
         print(f"End {self.name}")
 
@@ -58,10 +63,13 @@ class AkimboModel:
             if isinstance(config_layer, ConfigInterceptLayer):
                 pass
 
+        print("Active layers:")
+        for key, entry in sorted(self.__active_layers[-1].actionMap.items(), key=lambda x: x[0]):
+            print(f"Key: {key_to_unicode(key)} Entry: {entry}")
+
     def process(self, tapcode: int):
         # Process the tapcode through the active layers, passing the next layer as a callback
         active_layers = [*self.__active_layers]
-        print(active_layers)
 
         def down_layer():
             # print(" ".join([x.name for x in active_layers]))
@@ -111,9 +119,9 @@ class AkimboModel:
             )
 
             key_tasks[code] = AkimboTapHandler(
-                single_action, double_action, triple_action, self.__loop, self.__timeout
+                single_action, double_action, triple_action, self.__loop, self.__timeout, code
             ).execute
-        return AkimboLayer(layer.name, key_tasks)
+        return AkimboLayer(layer.name, key_tasks, layer.transparent)
 
     def _build_action(
             self, entry: ConfigMapEntry, code: int

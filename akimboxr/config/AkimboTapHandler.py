@@ -2,7 +2,7 @@ import asyncio
 
 
 class AkimboTapHandler:
-    def __init__(self, single, double, triple, loop: asyncio.AbstractEventLoop, timeout: float):
+    def __init__(self, single, double, triple, loop: asyncio.AbstractEventLoop, timeout: float, code: int):
         self.__single = single
         self.__double = double
         self.__triple = triple
@@ -10,6 +10,7 @@ class AkimboTapHandler:
         self.__timeout = timeout
         self.__task = None
         self.__last_presses = []
+        self.__code = code
 
         def noop(down_layer):
             down_layer()
@@ -39,9 +40,15 @@ class AkimboTapHandler:
                         elif len(self.__last_presses) >= 2:
                             # 2 presses should extend the timeout but not run the action yet
                             self.__cancel()
+
+                            def double_action(down_layer):
+                                self.__single(down_layer)
+                                self.__single(down_layer)
+
                             print("Single action (defer)")
+
                             self.__task = self.__loop.call_later(
-                                self.__timeout, self.__single, down_layer
+                                self.__timeout, double_action, down_layer
                             )
                             return
                         else:
@@ -137,3 +144,6 @@ class AkimboTapHandler:
         print(f"{len(self.__last_presses)} presses in {self.__timeout} seconds")
 
         self.__inner_execute(down_layer)
+
+    def __repr__(self):
+        return f"""AkimboTapHandler({self.__code}{" x1" if self.__single else ""}{" x2" if self.__double else ""}{" x3" if self.__triple else ""})"""
