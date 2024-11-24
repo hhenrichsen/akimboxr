@@ -1,0 +1,388 @@
+onehand: true
+# options: timeout, backspace
+mode: timeout
+# how long should we wait for a double or triple press?
+timeout: 350
+layers:
+  base:
+    default: true
+    type: map
+    # Acceptable formats:
+    #   code: "xoooo" (x = pressed, o = not pressed)
+    #   code: "●○○○○" (● = pressed, ○ = not pressed)
+    #   code: 1 (binary representation, thumb to pinky)
+    map:
+      # Basic keys
+      - code: xoooo
+        type: single
+        actions:
+          - type: press
+            key: "a"
+      - code: oxoox
+        type: single
+        actions:
+          - type: press
+            key: "b"
+      - code: xoxxx
+        type: single
+        actions:
+          - type: press
+            key: "c"
+      - code: xoxoo
+        type: single
+        actions:
+          - type: press
+            key: "d"
+      - code: oxooo
+        type: single
+        actions:
+          - type: press
+            key: "e"
+      - code: xxoxo
+        type: single
+        actions:
+          - type: press
+            key: "f"
+      - code: xoxxo
+        type: single
+        actions:
+          - type: press
+            key: "g"
+      - code: oxxxx
+        type: single
+        actions:
+          - type: press
+            key: "h"
+      - code: ooxoo
+        type: single
+        actions:
+          - type: press
+            key: "i"
+      - code: xxxox
+        type: single
+        actions:
+          - type: press
+            key: "j"
+      - code: xooxo
+        type: single
+        actions:
+          - type: press
+            key: "k"
+      - code: ooxxo
+        type: single
+        actions:
+          - type: press
+            key: "l"
+      - code: oxoxo
+        type: single
+        actions:
+          - type: press
+            key: "m"
+      - code: xxooo
+        type: single
+        actions:
+          - type: press
+            key: "n"
+      - code: oooxo
+        type: single
+        actions:
+          - type: press
+            key: "o"
+      - code: xxoox
+        type: single
+        actions:
+          - type: press
+            key: "p"
+      - code: oxxox
+        type: single
+        actions:
+          - type: press
+            key: "q"
+      - code: xxxxo
+        type: single
+        actions:
+          - type: press
+            key: "r"
+      - code: oooxx
+        type: single
+        actions:
+          - type: press
+            key: "s"
+      - code: oxxoo
+        type: single
+        actions:
+          - type: press
+            key: "t"
+      - code: oooox
+        type: single
+        actions:
+          - type: press
+            key: "u"
+      - code: xxoxx
+        type: single
+        actions:
+          - type: press
+            key: "v"
+      - code: xoxox
+        type: single
+        actions:
+          - type: press
+            key: "w"
+      - code: oxoxx
+        type: single
+        actions:
+          - type: press
+            key: "x"
+      - code: xooox
+        type: single
+        actions:
+          - type: press
+            key: "y"
+      - code: ooxox
+        type: single
+        actions:
+          - type: press
+            key: "z"
+      - code: xxxxx
+        type: single
+        actions:
+          - type: press
+            key: " "
+      - code: oxxxo
+        type: single
+        actions:
+          - type: press
+            key: "backspace"
+      - code: xooxx
+        type: single
+        actions:
+          - type: press
+            key: "enter"
+      # Punctuation
+      - code: xxxxx
+        type: double
+        actions:
+          - type: press
+            key: "."
+      - code: oxoxo
+        type: double
+        actions:
+          - type: press
+            key: ","
+      - code: xooxo
+        type: double
+        actions:
+          - type: press
+            key: "shift+/"
+      - code: oxooo
+        type: double
+        actions:
+          - type: press
+            key: "shift+1"
+      - code: xoxxx
+        type: double
+        actions:
+          - type: press
+            key: "shift+;"
+      - code: xoxxx
+        type: triple
+        actions:
+          - type: press
+            key: ";"
+      - code: oxxxx
+        type: double
+        actions:
+          - type: press
+            key: "-"
+      - code: oxxoo
+        type: double
+        actions:
+          - type: press
+            key: "shift+'"
+      - code: xxxxo
+        type: double
+        actions:
+          - type: press
+            key: "'"
+      - code: xxoox
+        type: double
+        actions:
+          - type: press
+            key: "shift+9"
+      - code: xxoox
+        type: triple
+        actions:
+          - type: press
+            key: "shift+0"
+      - code: ooxxo
+        type: double
+        actions:
+          - type: press
+            key: "/"
+      - code: oooox
+        type: triple
+        actions:
+          - type: press
+            key: "shift+-"
+      - code: xoxoo
+        type: triple
+        actions:
+          - type: press
+            key: "shift+7"
+      - code: oxxoo
+        type: triple
+        actions:
+          - type: press
+            key: "shift+8"
+      - code: oxxoo
+        type: triple
+        actions:
+          - type: press
+            key: "shift+3"
+      - code: oxoox
+        type: double
+        actions:
+          - type: press
+            key: "["
+      - code: oxoox
+        type: triple
+        actions:
+          - type: press
+            key: "]"
+      - code: ooxxo
+        type: triple
+        actions:
+          - type: press
+            key: "shift+="
+      - code: oxooo
+        type: triple
+        actions:
+          - type: press
+            key: "="
+      - code: xoxxo
+        type: triple
+        actions:
+          - type: press
+            key: "shift+,"
+      - code: xoxxo
+        type: double
+        actions:
+          - type: press
+            key: "shift+."
+      - code: xoxoo
+        type: triple
+        actions:
+          - type: press
+            key: "shift+4"
+      - code: xxxxo
+        type: triple
+        actions:
+          - type: press
+            key: "shift+5"
+      - code: xooxo
+        type: triple
+        actions:
+          - type: press
+            key: "shift+8"
+      # Shortcuts
+      - code: ooxoo
+        type: double
+        actions:
+          - type: press
+            key: "j"
+      - code: oooxo
+        type: double
+        actions:
+          - type: press
+            key: "q"
+      - code: xoooo
+        type: double
+        actions:
+          - type: press
+            key: "v"
+      - code: oooox
+        type: double
+        actions:
+          - type: press
+            key: "w"
+      - code: xooox
+        type: double
+        actions:
+          - type: press
+            key: "z"
+      # Switch layers
+      - code: xxxoo
+        type: single
+        actions:
+          - type: pushlayer
+            key: "shift"
+            backspace_count: 0
+      - code: ooxxx
+        type: single
+        actions:
+          - type: pushlayer
+            key: "number"
+            backspace_count: 0
+
+  shift:
+    # Runs the action before any lower layers
+    type: intercept
+    layer: "base"
+    actions:
+      - type: press
+        key: "shift"
+
+  number:
+    type: map
+    transparent: false
+    map:
+      - code: xoooo
+        type: single
+        actions:
+          - type: press
+            key: "1"
+      - code: oxooo
+        type: single
+        actions:
+          - type: press
+            key: "2"
+      - code: ooxoo
+        type: single
+        actions:
+          - type: press
+            key: "3"
+      - code: oooxo
+        type: single
+        actions:
+          - type: press
+            key: "4"
+      - code: oooox
+        type: single
+        actions:
+          - type: press
+            key: "5"
+      - code: xooox
+        type: single
+        actions:
+          - type: press
+            key: "6"
+      - code: oxoox
+        type: single
+        actions:
+          - type: press
+            key: "7"
+      - code: ooxox
+        type: single
+        actions:
+          - type: press
+            key: "8"
+      - code: oooxx
+        type: single
+        actions:
+          - type: press
+            key: "9"
+      - code: oxxxx
+        type: single
+        actions:
+          - type: press
+            key: "0"
