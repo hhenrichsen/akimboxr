@@ -1,9 +1,9 @@
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, List
 from .AkimboConfig import (
     AkimboConfig,
     ConfigActionType,
     ConfigMapEntry,
-    ConfigMapEntryType, ConfigLayer,
+    ConfigMapEntryType, ConfigLayer, ConfigAction,
 )
 from pynput.keyboard import Controller
 import asyncio
@@ -20,26 +20,53 @@ class AkimboLayer:
     def __init__(
             self,
             name: str,
-            actions: Dict[int, AkimboTapHandler],
+            action_map: Dict[int, AkimboTapHandler],
             transparent: bool = False,
+            enter_actions: List[Callable[[], None]] | None = None,
+            exit_actions: List[Callable[[], None]] | None = None,
     ):
+        if enter_actions is None:
+            enter_actions = []
+        if exit_actions is None:
+            exit_actions = []
         self.name = name
-        self.actionMap = actions
+        self.__actionMap = action_map
+        self.__enter_actions = enter_actions
+        self.__exit_actions = exit_actions
         self.__transparent = transparent
 
-    def process(self, tapcode: int, down_layer: Callable[[], None]):
+    def is_transparent(self):
+        return self.__transparent
+
+    def process(self, tapcode: int):
         print(f"Process {self.name}")
-        if tapcode in self.actionMap:
+        if tapcode in self.__actionMap:
             print(f"Running {tapcode}")
             if self.__transparent:
-                self.actionMap[tapcode].execute(down_layer)
+                self.__actionMap[tapcode].execute()
             else:
-                self.actionMap[tapcode].execute(lambda: None)
+                self.__actionMap[tapcode].execute()
 
         print(f"End {self.name}")
 
+    def would_process(self, tapcode: int):
+        return tapcode in self.__actionMap
+
     def __repr__(self):
         return f"AkimboLayer(name={self.name})"
+
+    def __enter__(self):
+        print(f"Enter {self.name}")
+        for action in self.__enter_actions:
+            print(f"Run exit action {self.name}")
+            action()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print(f"Exit {self.name}")
+        for action in self.__exit_actions:
+            print(f"Run exit action {self.name}")
+            action()
+
 
 
 class AkimboModel:
@@ -53,24 +80,23 @@ class AkimboModel:
         for layerName in config.layers:
             config_layer = config.layers[layerName]
             layer = self._build_map_layer(config_layer)
-            print(f"Built layer {layer.name}")
             self.__layers[layerName] = layer
             if config_layer.default:
                 self.__active_layers.append(layer)
 
-
-        print("Active layers:")
-        for key, entry in sorted(self.__active_layers[-1].actionMap.items(), key=lambda x: x[0]):
-            print(f"Key: {key_to_unicode(key)} Entry: {entry}")
-
     def process(self, tapcode: int):
         # Process the tapcode through the active layers, passing the next layer as a callback
-        active_layers = [*self.__active_layers]
+        active_layers: List[AkimboLayer] = [*self.__active_layers]
 
         def down_layer():
-            # print(" ".join([x.name for x in active_layers]))
-            if len(active_layers) > 0:
-                active_layers.pop().process(tapcode, down_layer)
+            if len(active_layers) < 1:
+                return
+            layer = active_layers.pop()
+            with layer:
+                if layer.would_process(tapcode):
+                    layer.process(tapcode)
+                elif layer.is_transparent():
+                    down_layer()
 
         down_layer()
 
@@ -117,36 +143,58 @@ class AkimboModel:
             key_tasks[code] = AkimboTapHandler(
                 single_action, double_action, triple_action, self.__loop, self.__timeout, code
             )
-        return AkimboLayer(layer.name, key_tasks, layer.transparent)
+
+        enter_actions = []
+        exit_actions = []
+        print(f"{layer.name} actions: {len(layer.actions)}")
+        for action in layer.actions:
+            enter_action, exit_action = self._build_split_action(action)
+            if enter_action is not None:
+                enter_actions.append(enter_action)
+            if exit_action is not None:
+                exit_actions.append(exit_action)
+
+        return AkimboLayer(layer.name, key_tasks, layer.transparent, enter_actions, exit_actions)
+
+    def _build_split_action(self, action: ConfigAction):
+        if action.type == ConfigActionType.Press:
+            print("Building split press action")
+
+            def pre():
+                for chord in action.keys:
+                    for press in chord:
+                        print(f"Pressing {press}")
+                        self.__keyboard.press(press)
+
+            def post():
+                for chord in action.keys:
+                    for release in chord:
+                        print(f"Releasing {release}")
+                        self.__keyboard.release(release)
+
+            return pre, post
+        pass
 
     def _build_action(
             self, entry: ConfigMapEntry, code: int
-    ) -> Callable[[Callable], None]:
-        pre_tasks = []
-        post_tasks = []
+    ):
+        tasks = []
         for action in entry.actions:
             if action.type == ConfigActionType.Press:
 
                 print(f"Task for {code} will be {action.keys}")
 
-                def pre():
+                def run():
                     for chord in action.keys:
                         for press in chord:
-                            print(f"Pressing {press}")
+                            print(f"Typing {press}")
                             self.__keyboard.press(press)
-
-                pre_tasks.append(pre)
-
-                def post():
-                    for chord in action.keys:
-                        for release in reversed(chord):
-                            print(f"Releasing {release}")
+                        for release in chord:
                             self.__keyboard.release(release)
 
-                post_tasks.append(post)
+                tasks.append(run)
 
             if action.type == ConfigActionType.PushLayer:
-                # TODO: Figure out how to escape the layer once you get into it
                 key = action.layer
                 print(f"Task for {code} will be move to {key}")
 
@@ -155,14 +203,14 @@ class AkimboModel:
                         print(f"Pushing layer {key}")
                         self.__active_layers.append(self.__layers[key])
 
-                pre_tasks.append(run)
+                tasks.append(run)
 
             if action.type == ConfigActionType.PopLayer:
                 def run():
                     if len(self.__active_layers) > 1:
                         self.__active_layers.pop()
 
-                pre_tasks.append(run)
+                tasks.append(run)
 
             if action.type == ConfigActionType.TopLayer:
                 key = action.layer
@@ -173,13 +221,9 @@ class AkimboModel:
                         self.__active_layers = filter(lambda x: x.name != key, self.__active_layers)
                         self.__active_layers.append(self.__layers[key])
 
-                pre_tasks.append(run)
+                tasks.append(run)
 
-
-        def run(down_layer):
-            print(f"Running {code}")
-            [setup() for setup in pre_tasks]
-            down_layer()
-            [teardown() for teardown in post_tasks]
+        def run():
+            [task() for task in tasks]
 
         return run

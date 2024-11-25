@@ -18,7 +18,7 @@ and contact me for commercial inquiries.
 - [ ] Configuration
     - [x] Custom Layers
     - [x] Layers across devices (shift on one tap shifts on the other)
-    - [ ] Intercept Layers (i.e., press shift than do the lower layers)
+    - [x] Intercept Layers (i.e., press shift than do the lower layers)
 - [ ] Advanced Tapping
   - [ ] Multi-device chords
   - [ ] Combos

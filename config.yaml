@@ -326,6 +326,7 @@ layers:
   shift:
     # Runs the action before any lower layers
     extends: base
+    transparent: true
     actions:
       - type: press
         key: shift
@@ -392,3 +393,8 @@ layers:
         type: single
         actions:
           - type: poplayer
+      - code: xxxoo
+        type: single
+        actions:
+          - type: pushlayer
+            layer: shift

@@ -165,8 +165,8 @@ class ConfigLayer:
         )
         values["extends"] = values["extends"] if "extends" in values else None
         values["actions"] = (
-            [ConfigAction.build(action) for action in values["action"]]
-        ) if "action" in values else []
+            [ConfigAction.build(action) for action in values["actions"]]
+        ) if "actions" in values else []
         values["default"] = values["default"] if "default" in values else False
         values["map"] = (
             [ConfigMapEntry.build(entry) for entry in values["map"]]
