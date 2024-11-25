@@ -8,23 +8,30 @@ from pynput.keyboard import Key, KeyCode
 class ConfigActionType(Enum):
     Press = "press"
     PushLayer = "pushlayer"
+    PopLayer = "poplayer"
+    TopLayer = "toplayer"
 
 
 class ConfigAction:
     def __init__(
-        self, type: ConfigActionType, backspace_count: int, keys: list[list[Key | str]]
+        self, type: ConfigActionType, backspace_count: int, layer: str | None, keys: list[list[Key | str]]
     ):
         self.type = type
         self.keys = keys
         self.backspace_count = backspace_count
+        self.layer = layer
 
     @staticmethod
     def build(values: Dict[str, Any]) -> "ConfigAction":
-        values["keys"] = [
-            [_parse_key(key) for key in chord.split("+")]
-            for chord in values["key"].split(",")
-        ]
-        del values["key"]
+        if "key" in values:
+            values["keys"] = [
+                [_parse_key(key) for key in chord.split("+")]
+                for chord in values["key"].split(",")
+            ]
+            del values["key"]
+        else:
+            values["keys"] = []
+        values["layer"] = values["layer"] if "layer" in values else None
         values["type"] = ConfigActionType(values["type"])
         values["backspace_count"] = (
             values["backspace_count"] if "backspace_count" in values else 1
@@ -133,99 +140,46 @@ class ConfigMapEntry:
     {"}"}"""
 
 
-class ConfigLayerType(Enum):
-    Map = "map"
-    Intercept = "intercept"
-
-
-class ConfigLayer(ABC):
-    def __init__(self):
-        pass
-
-    type: ConfigLayerType
-    name: str
-    default: bool
-
-    @staticmethod
-    def build(values: Dict[str, Any]) -> "ConfigLayer":
-        type = ConfigLayerType(values["type"].lower())
-        if type == ConfigLayerType.Map:
-            return ConfigMapLayer.build(values)
-        if type == ConfigLayerType.Intercept:
-            return ConfigInterceptLayer.build(values)
-        return ConfigMapLayer.build(values)
-
-
-class ConfigMapLayer(ConfigLayer):
+class ConfigLayer:
     def __init__(
         self,
-        type: ConfigLayerType,
         name: str,
         default: bool,
         transparent: bool,
         map: List[ConfigMapEntry],
+        actions: List[ConfigAction],
+        extends: str,
     ):
         self.name = name
         self.default = default
         self.map = map
         self.type = type
         self.transparent = transparent
+        self.actions = actions
+        self.extends = extends
 
     @staticmethod
-    def build(values: Dict[str, Any]) -> "ConfigMapLayer":
-        values["type"] = ConfigLayerType(values["type"].lower())
+    def build(values: Dict[str, Any]) -> "ConfigLayer":
         values["transparent"] = (
             values["transparent"] if "transparent" in values else False
         )
+        values["extends"] = values["extends"] if "extends" in values else None
+        values["actions"] = (
+            [ConfigAction.build(action) for action in values["action"]]
+        ) if "action" in values else []
         values["default"] = values["default"] if "default" in values else False
         values["map"] = (
             [ConfigMapEntry.build(entry) for entry in values["map"]]
             if "map" in values
             else []
         )
-        return ConfigMapLayer(**values)
+        return ConfigLayer(**values)
 
     def __repr__(self):
         keys = ",\n".join(list(map(str, self.map)))
         return f"""  MapLayer(name={self.name}, default={self.default}) {"{"}
 {keys}
   {"}"}"""
-
-
-# TODO: This might be a problem where the intercept layer needs a different key
-# to escape the layer.
-class ConfigInterceptLayer(ConfigLayer):
-    def __init__(
-        self,
-        type: ConfigLayerType,
-        name: str,
-        layer: str,
-        default: False,
-        actions: List[ConfigAction],
-    ):
-        self.type = type
-        self.name = name
-        self.layer = layer
-        self.actions = actions
-        self.default = default
-
-    @staticmethod
-    def build(values: Dict[str, Any]) -> "ConfigInterceptLayer":
-        values["type"] = ConfigLayerType(values["type"].lower())
-        values["actions"] = (
-            [ConfigAction.build(entry) for entry in values["actions"]]
-            if "actions" in values
-            else []
-        )
-        values["default"] = False
-        return ConfigInterceptLayer(**values)
-
-    def __repr__(self):
-        actions = ",\n".join(map(str, self.actions))
-        return f"""  InterceptLayer(name={self.name}, default={self.default}) {"{"}
-  {actions}
-  {"}"}"""
-
 
 class ConfigMode(Enum):
     Backspace = "backspace"

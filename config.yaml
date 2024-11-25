@@ -6,7 +6,6 @@ timeout: 350
 layers:
   base:
     default: true
-    type: map
     # Acceptable formats:
     #   code: "xoooo" (x = pressed, o = not pressed)
     #   code: "●○○○○" (● = pressed, ○ = not pressed)
@@ -315,25 +314,28 @@ layers:
         type: single
         actions:
           - type: pushlayer
-            key: "shift"
+            layer: shift
             backspace_count: 0
       - code: ooxxx
         type: single
         actions:
           - type: pushlayer
-            key: "number"
+            layer: number
             backspace_count: 0
 
   shift:
     # Runs the action before any lower layers
-    type: intercept
-    layer: "base"
+    extends: base
     actions:
       - type: press
-        key: "shift"
+        key: shift
+    map:
+      - code: xxxoo
+        type: single
+        actions:
+          - type: poplayer
 
   number:
-    type: map
     transparent: false
     map:
       - code: xoooo
@@ -386,3 +388,7 @@ layers:
         actions:
           - type: press
             key: "0"
+      - code: ooxxx
+        type: single
+        actions:
+          - type: poplayer

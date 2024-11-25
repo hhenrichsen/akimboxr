@@ -45,14 +45,14 @@ class AkimboTapHandler:
                                 self.__single(down_layer)
                                 self.__single(down_layer)
 
-                            print("Single action (defer)")
+                            print(f"Single action (defer {self.__timeout}s)")
 
                             self.__task = self.__loop.call_later(
                                 self.__timeout, double_action, down_layer
                             )
                             return
                         else:
-                            print("Single action (defer)")
+                            print(f"Single action (defer {self.__timeout}s)")
                             self.__task = self.__loop.call_later(
                                 self.__timeout, self.__single, down_layer
                             )
@@ -86,7 +86,7 @@ class AkimboTapHandler:
                             )
                             return
                     else:
-                        print("Single action (defer)")
+                        print(f"Single action (defer {self.__timeout}s)")
                         self.__task = self.__loop.call_later(
                             self.__timeout, self.__single, down_layer
                         )
@@ -124,6 +124,7 @@ class AkimboTapHandler:
                         return
 
     def __cancel(self):
+        print("Cancelled")
         if self.__task is not None:
             self.__task.cancel()
             self.__task = None

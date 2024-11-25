@@ -2,10 +2,8 @@ from typing import Any, Callable, Dict
 from .AkimboConfig import (
     AkimboConfig,
     ConfigActionType,
-    ConfigInterceptLayer,
     ConfigMapEntry,
-    ConfigMapEntryType,
-    ConfigMapLayer,
+    ConfigMapEntryType, ConfigLayer,
 )
 from pynput.keyboard import Controller
 import asyncio
@@ -54,14 +52,12 @@ class AkimboModel:
 
         for layerName in config.layers:
             config_layer = config.layers[layerName]
-            if isinstance(config_layer, ConfigMapLayer):
-                layer = self._build_map_layer(config_layer)
-                self.__layers[layerName] = layer
-                if config_layer.default:
-                    self.__active_layers.append(layer)
+            layer = self._build_map_layer(config_layer)
+            print(f"Built layer {layer.name}")
+            self.__layers[layerName] = layer
+            if config_layer.default:
+                self.__active_layers.append(layer)
 
-            if isinstance(config_layer, ConfigInterceptLayer):
-                pass
 
         print("Active layers:")
         for key, entry in sorted(self.__active_layers[-1].actionMap.items(), key=lambda x: x[0]):
@@ -78,7 +74,7 @@ class AkimboModel:
 
         down_layer()
 
-    def _build_map_layer(self, layer: ConfigMapLayer):
+    def _build_map_layer(self, layer: ConfigLayer):
         key_entries: Dict[int, Any] = {}
         for entry in layer.map:
             if entry.code not in key_entries:
@@ -139,29 +135,46 @@ class AkimboModel:
                             print(f"Pressing {press}")
                             self.__keyboard.press(press)
 
+                pre_tasks.append(pre)
+
                 def post():
                     for chord in action.keys:
                         for release in reversed(chord):
                             print(f"Releasing {release}")
                             self.__keyboard.release(release)
 
-                pre_tasks.append(pre)
                 post_tasks.append(post)
 
             if action.type == ConfigActionType.PushLayer:
                 # TODO: Figure out how to escape the layer once you get into it
-                key = action.keys[0][0]
+                key = action.layer
                 print(f"Task for {code} will be move to {key}")
 
                 def run():
                     if key in self.__layers:
-                        print(f"Pushing layer {action.keys[0][0]}")
-                        self.__active_layers = list(
-                            filter(lambda x: x.name != key, self.__active_layers)
-                        )
+                        print(f"Pushing layer {key}")
                         self.__active_layers.append(self.__layers[key])
 
                 pre_tasks.append(run)
+
+            if action.type == ConfigActionType.PopLayer:
+                def run():
+                    if len(self.__active_layers) > 1:
+                        self.__active_layers.pop()
+
+                pre_tasks.append(run)
+
+            if action.type == ConfigActionType.TopLayer:
+                key = action.layer
+                print(f"Task for {code} will be move to {key}")
+
+                def run():
+                    if key in self.__layers:
+                        self.__active_layers = filter(lambda x: x.name != key, self.__active_layers)
+                        self.__active_layers.append(self.__layers[key])
+
+                pre_tasks.append(run)
+
 
         def run(down_layer):
             print(f"Running {code}")
