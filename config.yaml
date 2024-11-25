@@ -167,7 +167,7 @@ layers:
         type: double
         actions:
           - type: press
-            key: ","
+            key: "comma"
       - code: xooxo
         type: double
         actions:
