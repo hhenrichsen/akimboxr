@@ -35,9 +35,6 @@ def on_tap_event(identifier, tapcode):
     except Exception as e:
         print("Error processing tapcode")
         print(e)
-    if int(tapcode) == 17:
-        sequence = [500, 200, 500, 500, 500, 200]
-        tap_instance.send_vibration_sequence(sequence, identifier)
 
 
 def main():
@@ -49,10 +46,8 @@ def main():
     tap_instance.register_tap_events(on_tap_event)
     tap_instance.set_input_mode(TapInputMode("controller"))
 
-    while True:
-        pass
-
 
 if __name__ == "__main__":
     asyncio.set_event_loop(loop)
-    loop.run_until_complete(main())
+    main()
+    loop.run_forever()

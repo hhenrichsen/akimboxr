@@ -20,7 +20,7 @@ class AkimboLayer:
     def __init__(
             self,
             name: str,
-            actions: Dict[int, Callable[[Callable], None]],
+            actions: Dict[int, AkimboTapHandler],
             transparent: bool = False,
     ):
         self.name = name
@@ -32,9 +32,9 @@ class AkimboLayer:
         if tapcode in self.actionMap:
             print(f"Running {tapcode}")
             if self.__transparent:
-                self.actionMap[tapcode](down_layer)
+                self.actionMap[tapcode].execute(down_layer)
             else:
-                self.actionMap[tapcode](lambda: None)
+                self.actionMap[tapcode].execute(lambda: None)
 
         print(f"End {self.name}")
 
@@ -116,7 +116,7 @@ class AkimboModel:
 
             key_tasks[code] = AkimboTapHandler(
                 single_action, double_action, triple_action, self.__loop, self.__timeout, code
-            ).execute
+            )
         return AkimboLayer(layer.name, key_tasks, layer.transparent)
 
     def _build_action(
