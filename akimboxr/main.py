@@ -1,14 +1,21 @@
-from tapsdk import TapSDK, TapInputMode
 import asyncio
+import logging
+
+from pynput.keyboard import KeyCode
+from tapsdk import TapSDK, TapInputMode
+import traceback
+
+from threads.KeyboardThread import run_keyboard_thread, queue, KeyboardThreadSupplier
 from config.AkimboModel import AkimboModel
 from config.AkimboConfig import deserialize_config
 
-loop = asyncio.new_event_loop()
 config = deserialize_config("config.yaml")
-model = AkimboModel(config, loop)
+model = AkimboModel(config, KeyboardThreadSupplier(queue))
 
 tap_instance = {}
 tap_identifiers = []
+
+logging.basicConfig(level=logging.INFO)
 
 
 def on_connect(identifier, name, fw):
@@ -32,9 +39,10 @@ def on_tap_event(identifier, tapcode):
     print(identifier, str(tapcode))
     try:
         model.process(int(tapcode))
-    except Exception as e:
+    except Exception as error:
         print("Error processing tapcode")
-        print(e)
+        print(error)
+        print(traceback.format_exception(type(error), error), error.__traceback__)
 
 
 def main():
@@ -48,6 +56,8 @@ def main():
 
 
 if __name__ == "__main__":
-    asyncio.set_event_loop(loop)
     main()
-    loop.run_forever()
+    run_keyboard_thread()
+    print(id(queue))
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    asyncio.get_event_loop().run_forever()

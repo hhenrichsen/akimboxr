@@ -12,7 +12,7 @@ and contact me for commercial inquiries.
 ## Features
 - [ ] Tapping
     - [x] Immediate taps (taps that only have one binding)
-    - [ ] Deferred taps (multiple tap disambiguation)
+    - [x] Deferred taps (multiple tap disambiguation)
     - [ ] Macros
     - [x] Pushing and Popping Layers
 - [ ] Configuration

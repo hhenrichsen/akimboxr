@@ -2,7 +2,7 @@ onehand: true
 # options: timeout, backspace
 mode: timeout
 # how long should we wait for a double or triple press?
-timeout: 350
+timeout: 200
 layers:
   base:
     default: true
