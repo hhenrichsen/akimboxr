@@ -81,15 +81,12 @@ def _worker(key_queue: Queue):
                     _, mode, key = tasks[task_id]
                     match mode:
                         case KeyOperation.Press:
-                            logger.info(f"Pressing {key}")
                             _controller.press(key)
 
                         case KeyOperation.Release:
-                            logger.info(f"Releasing {key}")
                             _controller.release(key)
 
                         case KeyOperation.Tap:
-                            logger.info(f"Tapping {key}")
                             _controller.tap(key)
                     _del_task(task_id)
 
@@ -111,7 +108,6 @@ def _worker(key_queue: Queue):
                         times[now + timedelta(seconds=delay)] = times.get(now + timedelta(seconds=delay), []) + [
                             task_id]
                     else:
-                        logger.info(f"Pressing {key}")
                         _controller.press(key)
                         _del_task(task_id)
 
@@ -122,7 +118,6 @@ def _worker(key_queue: Queue):
                         times[now + timedelta(seconds=delay)] = times.get(now + timedelta(seconds=delay), []) + [
                             task_id]
                     else:
-                        logger.info(f"Releasing {key}")
                         _controller.release(key)
                         _del_task(task_id)
 
@@ -133,7 +128,6 @@ def _worker(key_queue: Queue):
                         times[now + timedelta(seconds=delay)] = times.get(now + timedelta(seconds=delay), []) + [
                             task_id]
                     else:
-                        logger.info(f"Tapping {key}")
                         _controller.tap(key)
                         _del_task(task_id)
             key_queue.task_done()

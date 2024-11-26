@@ -178,16 +178,13 @@ class AkimboModel:
                         layer.start(delay)
                     for chord in action.keys:
                         for press in chord:
-                            print(f"Pressing {press}")
                             cancels.append(self.__supplier.press_key(press, delay))
                         for release in chord:
-                            print(f"Releasing {release}")
                             cancels.append(self.__supplier.release_key(release, delay))
                     for layer in layers:
                         layer.finish(delay)
 
                     def cancel():
-                        print("Cancelling (model)")
                         [cancel() for cancel in cancels]
 
                     return cancel
@@ -200,7 +197,6 @@ class AkimboModel:
 
                 def run_pushlayer(**args):
                     if key in self.__layers:
-                        print(f"Pushing layer {key}")
                         self.__active_layers.append(self.__layers[key])
 
                 tasks.append(run_pushlayer)

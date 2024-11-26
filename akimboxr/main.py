@@ -35,7 +35,6 @@ def on_disconnect(identifier):
 
 
 def on_tap_event(identifier, tapcode):
-    print(identifier, str(tapcode))
     try:
         model.process(int(tapcode))
     except Exception as error:
