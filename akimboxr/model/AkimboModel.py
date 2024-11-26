@@ -1,5 +1,5 @@
 from typing import Any, Callable, Dict, List
-from .AkimboConfig import (
+from akimboxr.config.AkimboConfig import (
     AkimboConfig,
     ConfigActionType,
     ConfigMapEntry,

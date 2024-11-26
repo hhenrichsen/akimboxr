@@ -1,12 +1,11 @@
 import asyncio
 import logging
 
-from pynput.keyboard import KeyCode
 from tapsdk import TapSDK, TapInputMode
 import traceback
 
 from threads.KeyboardThread import run_keyboard_thread, queue, KeyboardThreadSupplier
-from config.AkimboModel import AkimboModel
+from model.AkimboModel import AkimboModel
 from config.AkimboConfig import deserialize_config
 
 config = deserialize_config("config.yaml")
