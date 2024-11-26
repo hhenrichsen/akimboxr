@@ -15,11 +15,11 @@ and contact me for commercial inquiries.
     - [x] Deferred taps (multiple tap disambiguation)
     - [ ] Macros
     - [x] Pushing and Popping Layers
-- [ ] Configuration
+- [x] Configuration
     - [x] Custom Layers
     - [x] Layers across devices (shift on one tap shifts on the other)
     - [x] Intercept Layers (i.e., press shift than do the lower layers)
-- [ ] Advanced Tapping
+- [ ] Advanced Tapping / Configuration
   - [ ] Multi-device chords
   - [ ] Combos
   - [ ] Stenography Mode
